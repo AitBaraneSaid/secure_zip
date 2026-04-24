@@ -1,0 +1,43 @@
+name: Build & Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: 'Configuration de build'
+        required: false
+        default: 'Release'
+        type: choice
+        options:
+          - Release
+          - Debug
+
+jobs:
+  build-and-test:
+    name: Build & Tests (.NET Framework 4.7)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore
+        run: dotnet restore SecureZip.sln
+
+      - name: Build
+        run: dotnet build SecureZip.sln -c ${{ github.event.inputs.configuration || 'Release' }} --no-restore
+
+      - name: Run Tests
+        run: dotnet run --project SecureZip.Tests/SecureZip.Tests.csproj -c ${{ github.event.inputs.configuration || 'Release' }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SecureZip-${{ github.event.inputs.configuration || 'Release' }}
+          path: SecureZip/bin/${{ github.event.inputs.configuration || 'Release' }}/net47/SecureZip.exe
+          if-no-files-found: warn

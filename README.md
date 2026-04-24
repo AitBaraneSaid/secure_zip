@@ -1,5 +1,9 @@
 # SecureZip
 
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+[![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7-purple.svg)](https://dotnet.microsoft.com/download/dotnet-framework/net47)
+[![Build Manuel](https://img.shields.io/badge/CI-manuel-lightgrey.svg)](../../actions/workflows/build.yml)
+
 Outil console C# pour créer des archives ZIP chiffrées **AES-256** (chiffrement WinZip AES-256, méthode 99) compatible 7-Zip, WinRAR et Windows Explorer.  
 Aucune dépendance NuGet — uniquement le BCL .NET 4.7.
 
@@ -139,3 +143,7 @@ Aucune dépendance NuGet. Uniquement les assemblées BCL .NET 4.7 :
 - `System.Security.Cryptography` — AES, HMAC-SHA1, PBKDF2, RNG
 - `System.IO.Compression` — DeflateStream
 - `System` / `System.IO` — types de base
+
+## Licence
+
+Distribué sous licence [MIT](LICENSE) — © 2026 AIT BARANE Said.
