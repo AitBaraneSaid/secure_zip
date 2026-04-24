@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net47</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>SecureZip.Tests</AssemblyName>
+    <RootNamespace>SecureZip.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Compile les fichiers source du projet principal directement (pas de référence de projet
+         car SecureZip est OutputType=Exe ; on recompile les .cs partagés à la place) -->
+    <Compile Include="..\SecureZip\PasswordZipWriter.cs" />
+    <Compile Include="..\SecureZip\SecureZipService.cs" />
+  </ItemGroup>
+</Project>
