@@ -318,12 +318,17 @@ namespace SecureZip
             bool needLfhOffset = e.LfhOffset64        > Zip64Sentinel32;
             bool needZip64     = needUncSize || needCmpSize || needLfhOffset;
 
-            byte[] zip64Extra = BuildCdhZip64Extra(e.UncompressedSize64, e.CompressedSize64, e.LfhOffset64);
-            ushort extraLen   = needZip64 ? (ushort)(11 + zip64Extra.Length) : (ushort)11;
-
             uint cmpSize32 = needCmpSize   ? Zip64Sentinel32 : (uint)e.CompressedSize64;
             uint uncSize32 = needUncSize   ? Zip64Sentinel32 : (uint)e.UncompressedSize64;
             uint lfhOff32  = needLfhOffset ? Zip64Sentinel32 : (uint)e.LfhOffset64;
+
+            // Construire le ZIP64 extra uniquement si nécessaire
+            byte[] zip64Extra = needZip64 ? BuildCdhZip64ExtraSelective(
+                needUncSize   ? e.UncompressedSize64 : (ulong?)null,
+                needCmpSize   ? e.CompressedSize64   : (ulong?)null,
+                needLfhOffset ? e.LfhOffset64        : (ulong?)null) : null;
+
+            ushort extraLen = needZip64 ? (ushort)(11 + zip64Extra.Length) : (ushort)11;
 
             bw.Write(0x02014B50u);
             bw.Write((ushort)45);
@@ -346,6 +351,23 @@ namespace SecureZip
             WriteAesExtraField(bw, e.RealMethod);
             if (needZip64)
                 bw.Write(zip64Extra);
+        }
+
+        // Construit le ZIP64 extra du CDH en n'incluant que les champs qui dépassent 32 bits
+        private static byte[] BuildCdhZip64ExtraSelective(ulong? uncSize, ulong? cmpSize, ulong? lfhOffset)
+        {
+            var ms = new MemoryStream(28);
+            var bw = new BinaryWriter(ms);
+            int dataLen = 0;
+            if (uncSize   != null) dataLen += 8;
+            if (cmpSize   != null) dataLen += 8;
+            if (lfhOffset != null) dataLen += 8;
+            bw.Write(Zip64ExtraTag);
+            bw.Write((ushort)dataLen);
+            if (uncSize   != null) bw.Write(uncSize.Value);
+            if (cmpSize   != null) bw.Write(cmpSize.Value);
+            if (lfhOffset != null) bw.Write(lfhOffset.Value);
+            return ms.ToArray();
         }
 
         private static void WriteEocd(BinaryWriter bw, ulong cdOffset64, ulong cdSize64,

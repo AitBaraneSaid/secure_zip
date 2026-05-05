@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace SecureZip
 {
@@ -27,17 +28,36 @@ namespace SecureZip
                 return 1;
             }
 
+            var sw = Stopwatch.StartNew();
             try
             {
-                return SecureZipService.Run(args[0], args[1], args[2]);
+                int result = SecureZipService.Run(args[0], args[1], args[2]);
+                sw.Stop();
+                if (result == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Durée : " + FormatElapsed(sw.Elapsed));
+                    Console.ResetColor();
+                }
+                return result;
             }
             catch (Exception ex)
             {
+                sw.Stop();
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Error.WriteLine("Erreur : " + ex.Message);
                 Console.ResetColor();
                 return 1;
             }
+        }
+
+        private static string FormatElapsed(TimeSpan t)
+        {
+            if (t.TotalSeconds < 60)
+                return string.Format("{0:F1} s", t.TotalSeconds);
+            if (t.TotalMinutes < 60)
+                return string.Format("{0} min {1:D2} s", (int)t.TotalMinutes, t.Seconds);
+            return string.Format("{0} h {1:D2} min {2:D2} s", (int)t.TotalHours, t.Minutes, t.Seconds);
         }
     }
 }
